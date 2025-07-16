@@ -83,8 +83,21 @@ app.get("/u/:username", async (req, res) => {
 app.post("/u/:username", async (req, res) => {
   const { text } = req.body;
   const ip = requestIp.getClientIp(req) || "Unknown IP";
+  
+  // 👇 ডিভাইস শনাক্ত করার কোডটি এখানে উন্নত করা হয়েছে
   const agent = useragent.parse(req.headers["user-agent"]);
-  const device = `${agent.family} on ${agent.os.toString()}`;
+  let deviceString;
+  
+  // agent.device.family থেকে ডিভাইসের নাম (যেমন: Samsung SM-A525F) পাওয়া যায়
+  if (agent.device.family && agent.device.family !== 'Other') {
+    deviceString = `${agent.device.family} (${agent.os.family})`;
+  } else {
+    deviceString = agent.os.family;
+  }
+  
+  const device = `${agent.family} on ${deviceString}`;
+  // এখন device ভ্যারিয়েবলের মান হবে এমন: "Chrome on Samsung SM-A525F (Android)"
+
   const location = await getLocationFromIP(ip);
 
   await Message.create({
@@ -92,9 +105,10 @@ app.post("/u/:username", async (req, res) => {
     text,
     ip,
     location,
-    device
+    device // এখানে উন্নত করা ডিভাইস তথ্য সেভ হবে
   });
 
+  // বাকি কোড অপরিবর্তিত থাকবে...
   const htmlResponse = `
     <!DOCTYPE html>
     <html lang="bn">
@@ -136,5 +150,3 @@ app.post("/u/:username", async (req, res) => {
   `;
   res.send(htmlResponse);
 });
-
-app.listen(3000, () => console.log("🚀 Server running on port 3000"));
