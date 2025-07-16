@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import session from "express-session";
+import MongoStore from 'connect-mongo'; // নতুন ইম্পোর্ট
 import bcrypt from "bcryptjs";
 import path from "path";
 import requestIp from "request-ip";
@@ -28,13 +29,19 @@ mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopol
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 app.set("view engine", "ejs");
+
+// Session Middleware - প্রোডাকশনের জন্য আপডেট করা হয়েছে
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  store: MongoStore.create({ 
+    mongoUrl: process.env.MONGO_URL,
+    ttl: 14 * 24 * 60 * 60 // 14 days
+  })
 }));
 
-// Routes
+// Routes (বাকি রাউটগুলো অপরিবর্তিত)
 app.get("/", (req, res) => res.render("home"));
 
 app.get("/register", (req, res) => res.render("register"));
@@ -57,10 +64,8 @@ app.post("/login", async (req, res) => {
   const { username, password } = req.body;
   const user = await User.findOne({ username });
   if (!user) return res.send("❌ User not found");
-
   const match = await bcrypt.compare(password, user.password);
   if (!match) return res.send("❌ Wrong password");
-
   req.session.user = user;
   res.redirect("/dashboard");
 });
@@ -81,35 +86,21 @@ app.get("/u/:username", async (req, res) => {
 });
 
 app.post("/u/:username", async (req, res) => {
-  const { text } = req.body;
-  const ip = requestIp.getClientIp(req) || "Unknown IP";
-  
-  // 👇 ডিভাইস শনাক্ত করার কোডটি এখানে উন্নত করা হয়েছে
-  const agent = useragent.parse(req.headers["user-agent"]);
-  let deviceString;
-  
-  // agent.device.family থেকে ডিভাইসের নাম (যেমন: Samsung SM-A525F) পাওয়া যায়
-  if (agent.device.family && agent.device.family !== 'Other') {
-    deviceString = `${agent.device.family} (${agent.os.family})`;
-  } else {
-    deviceString = agent.os.family;
-  }
-  
-  const device = `${agent.family} on ${deviceString}`;
-  // এখন device ভ্যারিয়েবলের মান হবে এমন: "Chrome on Samsung SM-A525F (Android)"
+    const { text } = req.body;
+    const ip = requestIp.getClientIp(req) || "Unknown IP";
+    const agent = useragent.parse(req.headers["user-agent"]);
+    let deviceString;
+    if (agent.device.family && agent.device.family !== 'Other') {
+        deviceString = `${agent.device.family} (${agent.os.family})`;
+    } else {
+        deviceString = agent.os.family;
+    }
+    const device = `${agent.family} on ${deviceString}`;
+    const location = await getLocationFromIP(ip);
 
-  const location = await getLocationFromIP(ip);
-
-  await Message.create({
-    toUser: req.params.username,
-    text,
-    ip,
-    location,
-    device // এখানে উন্নত করা ডিভাইস তথ্য সেভ হবে
-  });
-
-  // বাকি কোড অপরিবর্তিত থাকবে...
-  const htmlResponse = `
+    await Message.create({ toUser: req.params.username, text, ip, location, device });
+    
+    const htmlResponse = `
     <!DOCTYPE html>
     <html lang="bn">
     <head>
@@ -150,3 +141,8 @@ app.post("/u/:username", async (req, res) => {
   `;
   res.send(htmlResponse);
 });
+
+
+// Port Listening - Render-এর জন্য আপডেট করা হয়েছে
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
