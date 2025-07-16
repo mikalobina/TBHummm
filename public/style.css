@@ -1,0 +1,74 @@
+/* Google Font Import */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+/* CSS Variables for easy theme management */
+:root {
+    --bg-light-gray: #f8f9fa;
+    --card-bg: #ffffff;
+    --primary-text: #212529;
+    --secondary-text: #6c757d;
+    --border-color: #dee2e6;
+    --primary-blue: #0d6efd;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-light-gray);
+    color: var(--primary-text);
+}
+
+.main-container {
+    max-width: 650px; /* Centered content width */
+}
+
+.brand-logo {
+    font-weight: 600;
+    font-size: 1.5rem;
+    color: var(--primary-blue);
+    text-decoration: none;
+}
+
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.form-control {
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.form-control:focus {
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    border-color: var(--primary-blue);
+}
+
+.btn-primary {
+    border-radius: 8px;
+    padding: 12px;
+    font-weight: 500;
+}
+
+/* Message Box Styling */
+.message-box {
+    background-color: #f8f9fa;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    transition: box-shadow 0.2s ease-in-out;
+}
+
+.message-box:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.message-text {
+    font-size: 1.05rem;
+    word-wrap: break-word;
+}
+
+.message-meta {
+    font-size: 0.8rem;
+    color: var(--secondary-text);
+}

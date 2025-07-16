@@ -1,0 +1,13 @@
+
+services:
+  - type: web
+    name: nglc-clone
+    env: node
+    plan: free
+    buildCommand: "npm install"
+    startCommand: "npm start"
+    envVars:
+      - key: MONGO_URL
+        value: your_mongo_connection_string
+      - key: SESSION_SECRET
+        value: your_session_secret
