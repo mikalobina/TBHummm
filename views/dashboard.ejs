@@ -34,7 +34,6 @@
             <div class="card-body">
                 <h5 class="card-title">Share Your Link!</h5>
                 <p class="text-muted">Share this link to receive anonymous messages.</p>
-                
                 <div class="input-group">
                     <input type="text" id="shareLink" class="form-control" value="<%= req.protocol %>://<%= req.headers.host %>/u/<%= user.username %>" readonly>
                     <button class="btn btn-primary" onclick="copyLink()">
@@ -53,9 +52,11 @@
             <% messages.forEach(m => { %>
                 <div class="message-box p-3">
                     <p class="message-text mb-2"><%= m.text %></p>
-                    <div class="message-meta d-flex justify-content-between flex-wrap">
+                    
+                    <div class="message-meta d-flex justify-content-between flex-wrap small">
+                        <span><i class="bi bi-shield-check"></i> <strong>IP:</strong> <%= m.ip %></span>
                         <span><i class="bi bi-geo-alt-fill"></i> <%= m.location %></span>
-                        <span><i class="bi bi-laptop"></i> <%= m.device %></span>
+                        <span><i class="bi bi-phone"></i> <%= m.device %></span>
                         <span><i class="bi bi-clock"></i> <%= new Date(m.createdAt).toLocaleString() %></span>
                     </div>
                 </div>
