@@ -30,18 +30,18 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 app.set("view engine", "ejs");
 
-// Session Middleware - প্রোডাকশনের জন্য আপডেট করা হয়েছে
+// Session Middleware - Updated with MongoStore
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({ 
     mongoUrl: process.env.MONGO_URL,
-    ttl: 14 * 24 * 60 * 60 // 14 days
+    ttl: 14 * 24 * 60 * 60 // = 14 days. Default
   })
 }));
 
-// Routes (বাকি রাউটগুলো অপরিবর্তিত)
+// Routes (The rest of your routes remain unchanged)
 app.get("/", (req, res) => res.render("home"));
 
 app.get("/register", (req, res) => res.render("register"));
@@ -100,6 +100,7 @@ app.post("/u/:username", async (req, res) => {
 
     await Message.create({ toUser: req.params.username, text, ip, location, device });
     
+    // HTML Response... (code is unchanged)
     const htmlResponse = `
     <!DOCTYPE html>
     <html lang="bn">
@@ -143,6 +144,6 @@ app.post("/u/:username", async (req, res) => {
 });
 
 
-// Port Listening - Render-এর জন্য আপডেট করা হয়েছে
+// Port Listening - Updated for Render
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
