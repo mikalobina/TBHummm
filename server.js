@@ -2,7 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import session from "express-session";
-import MongoStore from 'connect-mongo'; // নতুন ইম্পোর্ট
+import MongoStore from 'connect-mongo';
 import bcrypt from "bcryptjs";
 import path from "path";
 import requestIp from "request-ip";
@@ -30,21 +30,25 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 app.set("view engine", "ejs");
 
-// Session Middleware - Updated with MongoStore
+// Session Middleware - স্থায়ী লগইনের জন্য চূড়ান্ত কনফিগারেশন
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({ 
     mongoUrl: process.env.MONGO_URL,
-    ttl: 14 * 24 * 60 * 60 // = 14 days. Default
-  })
+    ttl: 14 * 24 * 60 * 60 // সেশন ১৪ দিন পর্যন্ত ডাটাবেসে থাকবে
+  }),
+  cookie: {
+    maxAge: 14 * 24 * 60 * 60 * 1000 // কুকি ব্রাউজারে ১৪ দিন পর্যন্ত থাকবে
+  }
 }));
 
-// Routes (The rest of your routes remain unchanged)
+// Routes
 app.get("/", (req, res) => res.render("home"));
 
 app.get("/register", (req, res) => res.render("register"));
+
 app.post("/register", async (req, res) => {
   const { name, username, password } = req.body;
   const hashed = await bcrypt.hash(password, 10);
@@ -100,7 +104,6 @@ app.post("/u/:username", async (req, res) => {
 
     await Message.create({ toUser: req.params.username, text, ip, location, device });
     
-    // HTML Response... (code is unchanged)
     const htmlResponse = `
     <!DOCTYPE html>
     <html lang="bn">
@@ -144,6 +147,6 @@ app.post("/u/:username", async (req, res) => {
 });
 
 
-// Port Listening - Updated for Render
+// Port Listening - Render-এর জন্য আপডেট করা হয়েছে
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
