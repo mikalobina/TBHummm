@@ -52,12 +52,12 @@
             <% messages.forEach(m => { %>
                 <div class="message-box p-3">
                     <p class="message-text mb-2"><%= m.text %></p>
-                    
                     <div class="message-meta d-flex justify-content-between flex-wrap small">
                         <span><i class="bi bi-shield-check"></i> <strong>IP:</strong> <%= m.ip %></span>
                         <span><i class="bi bi-geo-alt-fill"></i> <%= m.location %></span>
                         <span><i class="bi bi-phone"></i> <%= m.device %></span>
-                        <span><i class="bi bi-clock"></i> <%= new Date(m.createdAt).toLocaleString() %></span>
+                        
+                        <span><i class="bi bi-clock"></i> <%= new Date(m.createdAt).toLocaleString('en-US', { timeZone: 'Asia/Dhaka' }) %></span>
                     </div>
                 </div>
             <% }) %>
@@ -69,17 +69,10 @@
     <script>
         function copyLink() {
             const linkInput = document.getElementById('shareLink');
-            linkInput.select();
-            linkInput.setSelectionRange(0, 99999);
-            
             navigator.clipboard.writeText(linkInput.value).then(() => {
                 const toast = document.getElementById('copy-toast');
                 toast.classList.remove('d-none');
-                setTimeout(() => {
-                    toast.classList.add('d-none');
-                }, 2000);
-            }).catch(err => {
-                console.error('Failed to copy: ', err);
+                setTimeout(() => { toast.classList.add('d-none'); }, 2000);
             });
         }
     </script>
